@@ -1,0 +1,181 @@
+/*
+ * Copyright (c) 2012, 2021, Wedon and/or its affiliates. All rights reserved.
+ *
+ */
+
+package cc.wdcloud.wdn.resource.utils;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * todo 写下 你的注释
+ *
+ * @author huwy
+ * @version 1.0.0
+ * @createdAt 2021/11/11 21:23
+ * @updatedAt 2021/11/11 21:23
+ */
+public class cssUtils {
+
+    public static void main(String[] args) throws IOException {
+        // readPdfTextTest();
+//        readFile("D:\\css.txt");
+        String path="D:\\项目";
+        traverseFolder2(path);
+    }
+
+
+    public static String readFile(String filePathAndName) {
+        String fileContent = "";
+        String str="D:\\test.txt";
+        try {
+            File f = new File(filePathAndName);
+            if(f.isFile()&&f.exists()){
+                InputStreamReader read = new InputStreamReader(new FileInputStream(f),"UTF-8");
+                BufferedReader reader=new BufferedReader(read);
+                String line;
+                List<String> urlList = new ArrayList<>();
+                while ((line = reader.readLine()) != null) {
+                    //将读取到的字符拼接
+                    fileContent += line;
+                    //匹配正则
+                    String str3="url\\s∗([′\"]?+)(.∗?)\\1\\s∗";
+                    if (fileContent.contains("url")){
+                        String[] strings = fileContent.toLowerCase().split("url:");
+                        //.png
+                        System.out.printf(strings[1]);
+                        urlList.add(strings[1]);
+                        creat(strings[1]);
+                    }
+//                    if (fileContent.matches(str3)){
+//                        String[] split = fileContent.toLowerCase().split(str3);
+//                        System.out.printf(split[1]+"-------");
+//                    }
+
+                }
+                read.close();
+            }
+        } catch (Exception e) {
+            System.out.println("读取文件内容操作出错");
+            e.printStackTrace();
+        }
+//        System.out.println("fileContent:"+fileContent);
+        return fileContent;
+    }
+
+    public static void creat (String str){
+
+        String fileName="D:\\test.txt";
+
+        Path path = Paths.get(fileName);
+        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            {
+
+                writer.append(str);
+                writer.write("\r\n ");
+            }
+        }catch (Exception e){
+            System.out.println("写入失败");
+        }
+    }
+
+    public static void getFiles(String path,ArrayList<File> list) throws Exception {
+        File file = new File(path);
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (File fileIndex : files) {
+                if (fileIndex.isDirectory()) {
+                    getFiles(fileIndex.getPath(),list);
+                } else {
+                    list.add(fileIndex);
+                    creat(fileIndex.toString());
+                }
+            }
+        }
+    }
+
+    public static void traverseFolder2(String path) {
+
+        File file = new File(path);
+        if (file.exists()) {
+            File[] files = file.listFiles();
+            if (files.length == 0) {
+                System.out.println("文件夹是空的!");
+                return;
+            } else {
+                for (File item : files) {
+                    if (item.isDirectory()) {
+//                        if ("src".equals(item.getName())){
+//                            System.out.println("src 文件夹:" + item.getAbsolutePath()+"  名称："+item.getName());
+//                        }
+                        traverseFolder2(item.getAbsolutePath());
+                    } else {
+//                        if ("src".equals(item.getName())){
+//                            System.out.println("src文件下内容:" + item.getAbsolutePath());
+//                        }
+                        if (item.getName().contains(".vue")){
+                            readFlie(item);
+//                            System.out.println("文件:" + item.getAbsolutePath());
+                            System.out.println("===文件名称:" + item.getName());
+                        }else if(item.getName().contains(".css")){
+                            readFlie(item);
+//                            System.out.println("文件:" + item.getAbsolutePath());
+                            System.out.println("===文件名称:" + item.getName());
+                        }
+
+
+                    }
+                }
+            }
+        } else {
+            System.out.println("文件不存在!");
+        }
+    }
+
+    public static void readFlie(File file){
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(file));
+            String str;
+            while ((str = in.readLine()) != null) {
+                int length = str.length();
+//                if (str.contains("src=") || str.contains("<img") || str.contains("background-image")
+//                        || str.contains("background: url") || str.contains("background:url") || str.contains("background url(")
+//                        || str.contains("background:   url(")){
+//                    System.out.println("_____________"+str);
+//                    writeTotext(str);
+//                    String[] strings = str.split("src", length);
+////                    System.out.println("***********"+strings[1]);
+//                }else {
+////                    System.out.println("_____________"+str);
+//                }
+                if( (str.contains("http:") || str.contains("https:")) && str.contains("src=") && str.contains("<img")){
+                    writeTotext(str);
+                }
+
+            }
+//            System.out.println(str);
+        } catch (IOException e) {
+
+        }
+    }
+
+    public static void writeTotext(String str){
+        String filePath = "D:\\test.txt";
+        try {
+            FileWriter fw = new FileWriter(filePath, true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write("\r\n ");// 往已有的文件上添加字符串
+            bw.write(str);
+            bw.close();
+            fw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
